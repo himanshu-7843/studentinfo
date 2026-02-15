@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Information bank</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:linear-gradient(135deg,#606864,#b6c1a3);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.container{
+  width:100%;
+  max-width:540px;
+  backdrop-filter: blur(12px);
+  background:rgba(183, 158, 158, 0.95);
+  border-radius:22px;
+  box-shadow:0 30px 60px rgba(0,0,0,0.25);
+  overflow:hidden;
+}
+
+.header{
+  background:linear-gradient(135deg,#b2b1c7,#7c3aed);
+  color:#180303;
+  padding:45px 30px;
+  text-align:center;
+}
+
+.header h1{
+  font-size:26px;
+  font-weight:700;
+}
+
+.header p{
+  font-size:13px;
+  opacity:.9;
+  margin-top:6px;
+}
+
+.badge{
+  margin-top:12px;
+  display:inline-block;
+  background:rgba(255,255,255,0.15);
+  padding:6px 14px;
+  border-radius:50px;
+  font-size:11px;
+  letter-spacing:.5px;
+}
+
+.form-content{
+  padding:40px 30px;
+}
+
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.form-group{
+  margin-bottom:18px;
+}
+
+label{
+  font-size:11px;
+  font-weight:600;
+  color:#374151;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  margin-bottom:6px;
+  display:block;
+}
+
+input,textarea{
+  width:100%;
+  padding:12px;
+  border:2px solid #e5e7eb;
+  border-radius:10px;
+  font-size:14px;
+  background:#f9fafb;
+  transition:.3s;
+}
+
+input:focus,textarea:focus{
+  border-color:#4f46e5;
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(79,70,229,0.1);
+  outline:none;
+}
+
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+.btn-submit{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#4f46e5,#7c3aed);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.3s;
+  letter-spacing:.5px;
+}
+
+.btn-submit:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 24px rgba(79,70,229,.4);
+}
+
+.btn-submit:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.status{
+  margin-top:16px;
+  padding:14px;
+  border-radius:10px;
+  font-size:13px;
+  text-align:center;
+  display:none;
+}
+
+.status.success{
+  display:block;
+  background:#ecfdf5;
+  color:#065f46;
+  border:1px solid #86efac;
+}
+
+.status.error{
+  display:block;
+  background:#fef2f2;
+  color:#7f1d1d;
+  border:1px solid #fca5a5;
+}
+
+.footer{
+  margin-top:20px;
+  text-align:center;
+  font-size:11px;
+  color:#9ca3af;
+}
+
+@media(max-width:480px){
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Student Information Portal</h1>
+    <p>Official Record Submission System</p>
+    <div class="badge">Secure • Verified • Automated PDF</div>
+  </div>
+
+  <div class="form-content">
+    <form id="myForm">
+
+      <div class="form-row">
+        <div>
+          <label>First Name</label>
+          <input type="text" name="name" required>
+        </div>
+        <div>
+          <label>Last Name</label>
+          <input type="text" name="lastName" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label>Email Address</label>
+          <input type="email" name="email" required>
+        </div>
+        <div>
+          <label>Roll Number</label>
+          <input type="text" name="rollNo" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Message / Notes</label>
+        <textarea name="message" required></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submitBtn">
+        Generate Official Report
+      </button>
+
+      <div class="status" id="status"></div>
+    </form>
+
+    <div class="footer">
+      Your information is encrypted and securely stored in our system.
+    </div>
+  </div>
+</div>
+
+<script>
+const URL = "https://script.google.com/macros/s/AKfycbzPqb2QUq7FaUJZlmW5AWDRuS5XR71_ftxeFjVKNu1YctzgQ8ML9Rf0DDIv7KRJBAI8/exec";
+
+const form = document.getElementById("myForm");
+const statusEl = document.getElementById("status");
+const submitBtn = document.getElementById("submitBtn");
+
+let isSubmitting = false;
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (isSubmitting) return;
+  isSubmitting = true;
+
+  submitBtn.disabled = true;
+  statusEl.className = "";
+  statusEl.textContent = "";
+
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch(URL, {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.status === "success") {
+      statusEl.className = "status success";
+      statusEl.innerHTML = `
+        ✅ Report Generated Successfully!<br>
+        <a href="${result.link}" target="_blank">Download PDF</a>
+      `;
+      form.reset();
+    } else {
+      statusEl.className = "status error";
+      statusEl.textContent = "Error: " + result.message;
+    }
+
+  } catch (error) {
+    statusEl.className = "status error";
+    statusEl.textContent = "Network error. Please try again.";
+  }
+
+  submitBtn.disabled = false;
+  isSubmitting = false;
+});
+</script>
+
+</body>
+</html>
